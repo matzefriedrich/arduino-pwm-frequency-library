@@ -97,7 +97,7 @@ uint16_t GetFrequency_8(const int16_t timerOffset)
 	return (int16_t)(F_CPU/((uint32_t)2 * GetTop_8(timerOffset) * GetPrescaler_8(timerOffset)));
 }
 
-bool SetFrequency_8(const int16_t timerOffset, uint16_t f)
+bool SetFrequency_8(const int16_t timerOffset, uint32_t f)
 {
 	if(f > 2000000 || f < 31)
 		return false;
@@ -219,15 +219,15 @@ void InitTimersSafe()
 	Timer5_Initialize();
 }
 
-bool SetPinFrequency(int8_t pin, int32_t frequency)
+bool SetPinFrequency(int8_t pin, uint32_t frequency)
 {
 	uint8_t timer = digitalPinToTimer(pin);
 	
-	if((timer == TIMER0B) && (frequency >> 16 == 0)) //making sure it can be cast to a 16 bit int
+	if(timer == TIMER0B)
 	return Timer0_SetFrequency(frequency);
 	else if(timer == TIMER1A || timer == TIMER1B)
 	return Timer1_SetFrequency(frequency);
-	else if((timer == TIMER2B) && frequency >> 16 == 0) //making sure it can be cast to a 16 bit int
+	else if(timer == TIMER2B)
 	return Timer2_SetFrequency(frequency);
 	else if(timer == TIMER3A || timer == TIMER3B || timer == TIMER3C)
 	return Timer3_SetFrequency(frequency);
@@ -239,13 +239,13 @@ bool SetPinFrequency(int8_t pin, int32_t frequency)
 	return false;
 }
 
-bool SetPinFrequencySafe(int8_t pin, int32_t frequency)
+bool SetPinFrequencySafe(int8_t pin, uint32_t frequency)
 {
 	uint8_t timer = digitalPinToTimer(pin);
 	
 	if(timer == TIMER1A || timer == TIMER1B)
 	return Timer1_SetFrequency(frequency);
-	else if((timer == TIMER2B) && frequency >> 16 == 0) //making sure it can be cast to a 16 bit int
+	else if(timer == TIMER2B)
 	return Timer2_SetFrequency(frequency);
 	else if(timer == TIMER3A || timer == TIMER3B || timer == TIMER3C)
 	return Timer3_SetFrequency(frequency);

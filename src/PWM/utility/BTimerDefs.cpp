@@ -18,7 +18,7 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#if defined(__AVR_ATmega48__) || defined(__AVR_ATmega88__) || defined(__AVR_ATmega168__) || defined(__AVR_ATmega328P__)
+#if defined(__AVR_ATmega48__) || defined(__AVR_ATmega88__) || defined(__AVR_ATmega88P__) || defined(__AVR_ATmega168__) || defined(__AVR_ATmega168P__) || defined(__AVR_ATmega328__) || defined(__AVR_ATmega328P__)
 
 #include "wiring_private.h"
 #include "../PWM.h"
@@ -97,7 +97,7 @@ uint16_t GetFrequency_8(const int16_t timerOffset)
 	return (int16_t)(F_CPU/((uint32_t)2 * GetTop_8(timerOffset) * GetPrescaler_8(timerOffset)));
 }
 
-bool SetFrequency_8(const int16_t timerOffset, uint16_t f)
+bool SetFrequency_8(const int16_t timerOffset, uint32_t f)
 {
 	if(f > 2000000 || f < 31)
 		return false;
@@ -244,27 +244,27 @@ void InitTimersSafe()
 	Timer2_Initialize();
 }
 
-extern bool SetPinFrequency( int8_t pin, int32_t frequency )
+extern bool SetPinFrequency( int8_t pin, uint32_t frequency )
 {
 	uint8_t timer = digitalPinToTimer(pin);
 	
-	if((timer == TIMER0B) && (frequency >> 16 == 0)) //making sure it can be cast to a 16 bit int
+	if(timer == TIMER0B)
 		return Timer0_SetFrequency(frequency);
 	else if(timer == TIMER1A || timer == TIMER1B)
 		return Timer1_SetFrequency(frequency);
-	else if((timer == TIMER2B) && frequency >> 16 == 0) //making sure it can be cast to a 16 bit int
+	else if(timer == TIMER2B)
 		return Timer2_SetFrequency(frequency);
 	else
 		return false;
 }
 
-bool SetPinFrequencySafe(int8_t pin, int32_t frequency)
+bool SetPinFrequencySafe(int8_t pin, uint32_t frequency)
 {
 	uint8_t timer = digitalPinToTimer(pin);
 	
 	if(timer == TIMER1A || timer == TIMER1B)
 		return Timer1_SetFrequency(frequency);
-	else if((timer == TIMER2B) && frequency >> 16 == 0) //making sure it can be cast to a 16 bit int
+	else if(timer == TIMER2B)
 		return Timer2_SetFrequency(frequency);
 	else
 		return false;

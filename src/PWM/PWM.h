@@ -31,7 +31,7 @@ b) ATmega640/1280/1281/2560/2561
 
 #if defined(__AVR_ATmega640__) || defined(__AVR_ATmega1280__) || defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2560__) || defined(__AVR_ATmega2561__)
 	#include "utility/ATimerDefs.h"
-#elif defined(__AVR_ATmega48__) || defined(__AVR_ATmega88__) || defined(__AVR_ATmega88P__) || defined(__AVR_ATmega168__) || defined(__AVR_ATmega168P__) || defined(__AVR_ATmega328P__)
+#elif defined(__AVR_ATmega48__) || defined(__AVR_ATmega88__) || defined(__AVR_ATmega88P__) || defined(__AVR_ATmega168__) || defined(__AVR_ATmega168P__) || defined(__AVR_ATmega328__) || defined(__AVR_ATmega328P__)
 	#include "utility/BTimerDefs.h"
 #endif
 
@@ -48,7 +48,7 @@ extern void		Initialize_16(const int16_t timerOffset);
 
 // 8 bit timers
 extern uint16_t	GetFrequency_8(const int16_t timerOffset);
-extern bool		SetFrequency_8(const int16_t timerOffset, uint16_t f);
+extern bool		SetFrequency_8(const int16_t timerOffset, uint32_t f);
 extern uint16_t GetPrescaler_8(const int16_t timerOffset);
 extern void		SetPrescaler_8(const int16_t timerOffset, prescaler psc);
 extern void		SetPrescalerAlt_8(const int16_t timerOffset, prescaler_alt psc);
@@ -58,8 +58,9 @@ extern void		Initialize_8(const int16_t timerOffset);
 
 #endif
 
-#if defined(__AVR_ATmega48__) || defined(__AVR_ATmega88__) || defined(__AVR_ATmega88P__) || defined(__AVR_ATmega168__) || defined(__AVR_ATmega168P__) || defined(__AVR_ATmega328P__) || defined(__AVR_ATmega328P__)
+#if defined(__AVR_ATmega48__) || defined(__AVR_ATmega88__) || defined(__AVR_ATmega88P__) || defined(__AVR_ATmega168__) || defined(__AVR_ATmega168P__) || defined(__AVR_ATmega328__) || defined(__AVR_ATmega328P__)
 
+// 16 bit timers
 extern uint32_t	GetFrequency_16();
 extern bool		SetFrequency_16(uint32_t f);
 extern uint16_t GetPrescaler_16();
@@ -68,8 +69,9 @@ extern void		SetTop_16(uint16_t top);
 extern uint16_t GetTop_16();
 extern void		Initialize_16();
 
+// 8 bit timers
 extern uint16_t	GetFrequency_8(const int16_t timerOffset);
-extern bool		SetFrequency_8(const int16_t timerOffset, uint16_t f);
+extern bool		SetFrequency_8(const int16_t timerOffset, uint32_t f);
 extern uint16_t GetPrescaler_8(const int16_t timerOffset);
 extern void		SetPrescaler_8(const int16_t timerOffset, prescaler psc);
 extern void		SetPrescalerAlt_8(const int16_t timerOffset, prescaler_alt psc);
@@ -84,7 +86,7 @@ extern void		Initialize_8(const int16_t timerOffset);
 extern void InitTimers();
 extern void InitTimersSafe(); //doesn't init timers responsible for time keeping functions
 extern void pwmWrite(uint8_t pin, uint8_t val);
-extern bool SetPinFrequency(int8_t pin, int32_t frequency);
-extern bool SetPinFrequencySafe(int8_t pin, int32_t frequency); //does not set timers responsible for time keeping functions
+extern bool SetPinFrequency(int8_t pin, uint32_t frequency);
+extern bool SetPinFrequencySafe(int8_t pin, uint32_t frequency); //does not set timers responsible for time keeping functions
 
 #endif /* PWM_H_ */
