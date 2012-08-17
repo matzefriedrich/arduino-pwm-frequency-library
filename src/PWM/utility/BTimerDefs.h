@@ -77,6 +77,9 @@ enum prescaler_alt
 	psalt_1024	=	7
 };
 
+static float toBaseTwo(double baseTenNum);
+
+//macros for each timer 'object'
 #define Timer0_GetFrequency()	GetFrequency_8(TIMER0_OFFSET)
 #define Timer0_SetFrequency(x)	SetFrequency_8(TIMER0_OFFSET, x)
 #define Timer0_GetPrescaler()	GetPrescaler_8(TIMER0_OFFSET)
@@ -84,6 +87,7 @@ enum prescaler_alt
 #define Timer0_GetTop()			GetTop_8(TIMER0_OFFSET)
 #define Timer0_SetTop(x)		SetTop_8(TIMER0_OFFSET, x)
 #define Timer0_Initialize()		Initialize_8(TIMER0_OFFSET)
+#define Timer0_GetResolution()	GetResolution_8(TIMER0_OFFSET)
 
 #define Timer1_GetFrequency()	GetFrequency_16()
 #define Timer1_SetFrequency(x)	SetFrequency_16(x)
@@ -92,6 +96,7 @@ enum prescaler_alt
 #define Timer1_GetTop()			GetTop_16()
 #define Timer1_SetTop(x)		SetTop_16(x)
 #define Timer1_Initialize()		Initialize_16()
+#define Timer1_GetResolution()	GetResolution_16()
 
 #define Timer2_GetFrequency()	GetFrequency_8(TIMER2_OFFSET)
 #define Timer2_SetFrequency(x)	SetFrequency_8(TIMER2_OFFSET, x)
@@ -100,6 +105,7 @@ enum prescaler_alt
 #define Timer2_GetTop()			GetTop_8(TIMER2_OFFSET)
 #define Timer2_SetTop(x)		SetTop_8(TIMER2_OFFSET, x)
 #define Timer2_Initialize()		Initialize_8(TIMER2_OFFSET)
+#define Timer2_GetResolution()	GetResolution_8(TIMER2_OFFSET)
 
 #else
 	#error "BTimerDefs.h only supports ATMega48, ATMega88, ATMega168, ATMega328"

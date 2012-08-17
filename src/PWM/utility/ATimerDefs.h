@@ -100,14 +100,14 @@ struct TimerData //each instance is 4 bytes
 //4 bytes each, 18 elements, 72 Bytes total
 const TimerData timer_to_pwm_data[] = {
 	{0, 0, 0, 0},										//NOT_ON_TIMER
-	{0, 0, 0, 0},										//TIMER0A	disabled when this initialize is used	
+	{0, 0, 0, 0},										//TIMER0A	disabled when initialized
 	{OCR0A_MEM, OCR0B_MEM, TCCR0A_MEM, COM0B1, false},	//TIMER0B
 		
 	{ICR1_MEM, OCR1A_MEM, TCCR1A_MEM, COM1A1, true},	//TIMER1A
 	{ICR1_MEM, OCR1B_MEM, TCCR1A_MEM, COM1B1, true},	//TIMER1B	no C channel on timer 1?
 
 	{0, 0, 0, 0, 0},									//TIMER2	
-	{0, 0, 0, 0, 0},									//TIMER2A	disabled by frequency control
+	{0, 0, 0, 0, 0},									//TIMER2A	disabled when initialized
 	{OCR2A_MEM, OCR2B_MEM, TCCR2A_MEM, COM2B1, false},	//TIMER2B
 		
 	{ICR3_MEM, OCR3A_MEM, TCCR3A_MEM, COM3A1, true},	//TIMER3A
@@ -145,54 +145,62 @@ enum prescaler_alt
 	psalt_1024	=	7
 };
 
+static float toBaseTwo(double baseTenNum);
+
 //macros for each timer 'object'
-#define Timer0_GetFrequency()	GetFrequency_8(TIMER0_OFFSET)
-#define Timer0_SetFrequency(x)	SetFrequency_8(TIMER0_OFFSET, x)
-#define Timer0_GetPrescaler()	GetPrescaler_8(TIMER0_OFFSET)
-#define Timer0_SetPrescaler(x)	SetPrescaler_8(TIMER0_OFFSET, x)
-#define Timer0_GetTop()			GetTop_8(TIMER0_OFFSET)
-#define Timer0_SetTop(x)		SetTop_8(TIMER0_OFFSET, x)
-#define Timer0_Initialize()		Initialize_8(TIMER0_OFFSET)
+#define Timer0_GetFrequency()		GetFrequency_8(TIMER0_OFFSET)
+#define Timer0_SetFrequency(x)		SetFrequency_8(TIMER0_OFFSET, x)
+#define Timer0_GetPrescaler()		GetPrescaler_8(TIMER0_OFFSET)
+#define Timer0_SetPrescaler(x)		SetPrescaler_8(TIMER0_OFFSET, x)
+#define Timer0_GetTop()				GetTop_8(TIMER0_OFFSET)
+#define Timer0_SetTop(x)			SetTop_8(TIMER0_OFFSET, x)
+#define Timer0_Initialize()			Initialize_8(TIMER0_OFFSET)
+#define Timer0_GetResolution()		GetResolution_8(TIMER0_OFFSET)
 
-#define Timer1_GetFrequency()	GetFrequency_16(TIMER1_OFFSET)
-#define Timer1_SetFrequency(x)	SetFrequency_16(TIMER1_OFFSET, x)
-#define Timer1_GetPrescaler()	GetPrescaler_16(TIMER1_OFFSET)
-#define Timer1_SetPrescaler(x)	SetPrescaler_16(TIMER1_OFFSET, x)
-#define Timer1_GetTop()			GetTop_16(TIMER1_OFFSET)
-#define Timer1_SetTop(x)		SetTop_16(TIMER1_OFFSET, x)
-#define Timer1_Initialize()		Initialize_16(TIMER1_OFFSET)
+#define Timer1_GetFrequency()		GetFrequency_16(TIMER1_OFFSET)
+#define Timer1_SetFrequency(x)		SetFrequency_16(TIMER1_OFFSET, x)
+#define Timer1_GetPrescaler()		GetPrescaler_16(TIMER1_OFFSET)
+#define Timer1_SetPrescaler(x)		SetPrescaler_16(TIMER1_OFFSET, x)
+#define Timer1_GetTop()				GetTop_16(TIMER1_OFFSET)
+#define Timer1_SetTop(x)			SetTop_16(TIMER1_OFFSET, x)
+#define Timer1_Initialize()			Initialize_16(TIMER1_OFFSET)
+#define Timer1_GetResolution()		GetResolution_16(TIMER1_OFFSET)
 
-#define Timer2_GetFrequency()	GetFrequency_8(TIMER2_OFFSET)
-#define Timer2_SetFrequency(x)	SetFrequency_8(TIMER2_OFFSET, x)
-#define Timer2_GetPrescaler()	GetPrescaler_8(TIMER2_OFFSET)
-#define Timer2_SetPrescaler(x)	SetPrescaler_8(TIMER2_OFFSET, x)
-#define Timer2_GetTop()			GetTop_8(TIMER2_OFFSET)
-#define Timer2_SetTop(x)		SetTop_8(TIMER2_OFFSET, x)
-#define Timer2_Initialize()		Initialize_8(TIMER2_OFFSET)
+#define Timer2_GetFrequency()		GetFrequency_8(TIMER2_OFFSET)
+#define Timer2_SetFrequency(x)		SetFrequency_8(TIMER2_OFFSET, x)
+#define Timer2_GetPrescaler()		GetPrescaler_8(TIMER2_OFFSET)
+#define Timer2_SetPrescaler(x)		SetPrescaler_8(TIMER2_OFFSET, x)
+#define Timer2_GetTop()				GetTop_8(TIMER2_OFFSET)
+#define Timer2_SetTop(x)			SetTop_8(TIMER2_OFFSET, x)
+#define Timer2_Initialize()			Initialize_8(TIMER2_OFFSET)
+#define Timer2_GetResolution()		GetResolution_8(TIMER2_OFFSET)
 
-#define Timer3_GetFrequency()	GetFrequency_16(TIMER3_OFFSET)
-#define Timer3_SetFrequency(x)	SetFrequency_16(TIMER3_OFFSET, x)
-#define Timer3_GetPrescaler()	GetPrescaler_16(TIMER3_OFFSET)
-#define Timer3_SetPrescaler(x)	SetPrescaler_16(TIMER3_OFFSET, x)
-#define Timer3_GetTop()			GetTop_16(TIMER3_OFFSET)
-#define Timer3_SetTop(x)		SetTop_16(TIMER3_OFFSET, x)
-#define Timer3_Initialize()		Initialize_16(TIMER3_OFFSET)
+#define Timer3_GetFrequency()		GetFrequency_16(TIMER3_OFFSET)
+#define Timer3_SetFrequency(x)		SetFrequency_16(TIMER3_OFFSET, x)
+#define Timer3_GetPrescaler()		GetPrescaler_16(TIMER3_OFFSET)
+#define Timer3_SetPrescaler(x)		SetPrescaler_16(TIMER3_OFFSET, x)
+#define Timer3_GetTop()				GetTop_16(TIMER3_OFFSET)
+#define Timer3_SetTop(x)			SetTop_16(TIMER3_OFFSET, x)
+#define Timer3_Initialize()			Initialize_16(TIMER3_OFFSET)
+#define Timer3_GetResolution()		GetResolution_16(TIMER3_OFFSET)
 
-#define Timer4_GetFrequency()	GetFrequency_16(TIMER4_OFFSET)
-#define Timer4_SetFrequency(x)	SetFrequency_16(TIMER4_OFFSET, x)
-#define Timer4_GetPrescaler()	GetPrescaler_16(TIMER4_OFFSET)
-#define Timer4_SetPrescaler(x)	SetPrescaler_16(TIMER4_OFFSET, x)
-#define Timer4_GetTop()			GetTop_16(TIMER4_OFFSET)
-#define Timer4_SetTop(x)		SetTop_16(TIMER4_OFFSET, x)
-#define Timer4_Initialize()		Initialize_16(TIMER4_OFFSET)
+#define Timer4_GetFrequency()		GetFrequency_16(TIMER4_OFFSET)
+#define Timer4_SetFrequency(x)		SetFrequency_16(TIMER4_OFFSET, x)
+#define Timer4_GetPrescaler()		GetPrescaler_16(TIMER4_OFFSET)
+#define Timer4_SetPrescaler(x)		SetPrescaler_16(TIMER4_OFFSET, x)
+#define Timer4_GetTop()				GetTop_16(TIMER4_OFFSET)
+#define Timer4_SetTop(x)			SetTop_16(TIMER4_OFFSET, x)
+#define Timer4_Initialize()			Initialize_16(TIMER4_OFFSET)
+#define Timer4_GetResolution(x)		GetResolution_16(TIMER4_OFFSET)
 
-#define Timer5_GetFrequency()	GetFrequency_16(TIMER5_OFFSET)
-#define Timer5_SetFrequency(x)	SetFrequency_16(TIMER5_OFFSET, x)
-#define Timer5_GetPrescaler()	GetPrescaler_16(TIMER5_OFFSET)
-#define Timer5_SetPrescaler(x)	SetPrescaler_16(TIMER5_OFFSET, x)
-#define Timer5_GetTop()			GetTop_16(TIMER5_OFFSET)
-#define Timer5_SetTop(x)		SetTop_16(TIMER5_OFFSET, x)
-#define Timer5_Initialize()		Initialize_16(TIMER5_OFFSET)
+#define Timer5_GetFrequency()		GetFrequency_16(TIMER5_OFFSET)
+#define Timer5_SetFrequency(x)		SetFrequency_16(TIMER5_OFFSET, x)
+#define Timer5_GetPrescaler()		GetPrescaler_16(TIMER5_OFFSET)
+#define Timer5_SetPrescaler(x)		SetPrescaler_16(TIMER5_OFFSET, x)
+#define Timer5_GetTop()				GetTop_16(TIMER5_OFFSET)
+#define Timer5_SetTop(x)			SetTop_16(TIMER5_OFFSET, x)
+#define Timer5_Initialize()			Initialize_16(TIMER5_OFFSET)
+#define Timer5_GetResolution()		GetResolution_16(TIMER5_OFFSET)
 
 #else
 	#error "ATimerDefs.h only supports ATMega640, ATMega1280, ATMega1281, ATMega2560, and ATMega2561"

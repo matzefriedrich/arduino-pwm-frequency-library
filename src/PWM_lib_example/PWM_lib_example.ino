@@ -26,7 +26,7 @@ void setup()
   //sets the frequency for the specified pin
   bool success = SetPinFrequencySafe(led, frequency);
   
-  //if the pin frequency was set successfully, pin 13 turn on
+  //if the pin frequency was set successfully, turn pin 13 on
   if(success) {
     pinMode(13, OUTPUT);
     digitalWrite(13, HIGH);    

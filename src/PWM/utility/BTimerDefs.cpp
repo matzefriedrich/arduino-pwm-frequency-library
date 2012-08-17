@@ -88,6 +88,11 @@ void Initialize_16()
 	SetFrequency_16(500);
 }
 
+float GetResolution_16()
+{
+	return toBaseTwo(ICR1);
+}
+
 //--------------------------------------------------------------------------------
 //							8 Bit Timer Functions
 //--------------------------------------------------------------------------------
@@ -169,6 +174,12 @@ void Initialize_8(const int16_t timerOffset)
 	SetFrequency_8(timerOffset, 500);
 }
 
+float GetResolution_8(const int16_t timerOffset)
+{
+	return toBaseTwo(OCRA_8(timerOffset));
+}
+
+
 //--------------------------------------------------------------------------------
 //							Timer Independent Functions
 //--------------------------------------------------------------------------------
@@ -231,6 +242,61 @@ void pwmWrite(uint8_t pin, uint8_t val)
 	}		
 }
 
+//takes a 16 bit value instead of an 8 bit value for maximum resolution
+void pwmWriteHR(uint8_t pin, uint16_t val)
+{
+	pinMode(pin, OUTPUT);
+	
+	uint32_t tmp = val;
+	
+	if (val == 0)
+	digitalWrite(pin, LOW);
+	else if (val == 65535)
+	digitalWrite(pin, HIGH);
+	else
+	{
+		uint16_t regLoc16 = 0;
+		uint16_t regLoc8 = 0;
+		
+		uint16_t top;
+		switch(digitalPinToTimer(pin))
+		{
+			case TIMER0B:
+			sbi(TCCR0A, COM0B1);
+			regLoc8 = OCR0B_MEM;
+			top = Timer0_GetTop();
+			break;
+			case TIMER1A:
+			sbi(TCCR1A, COM1A1);
+			regLoc16 = OCR1A_MEM;
+			top = Timer1_GetTop();
+			break;
+			case TIMER1B:
+			sbi(TCCR1A, COM1B1);
+			regLoc16 = OCR1B_MEM;
+			top = Timer1_GetTop();
+			break;
+			case TIMER2B:
+			sbi(TCCR2A, COM2B1);
+			regLoc8 = OCR2B_MEM;
+			top = Timer2_GetTop();
+			break;
+			case NOT_ON_TIMER:
+			default:
+			if (val < 128)
+			digitalWrite(pin, LOW);
+			else
+			digitalWrite(pin, HIGH);
+			return;
+		}			
+		
+		if(regLoc16)
+			_SFR_MEM16(regLoc16) = (tmp*top)/65535;
+		else
+			_SFR_MEM8(regLoc8) = (tmp*top)/65535;
+	}
+}
+
 void InitTimers()
 {
 	Timer0_Initialize();
@@ -268,6 +334,40 @@ bool SetPinFrequencySafe(int8_t pin, uint32_t frequency)
 		return Timer2_SetFrequency(frequency);
 	else
 		return false;
+}
+
+float GetPinResolution(uint8_t pin)
+{
+	uint8_t timer = digitalPinToTimer(pin);	
+	uint16_t top;
+	
+	switch(timer)
+	{
+		case TIMER0B:
+			top = Timer0_GetTop();
+			break;
+		case TIMER1A:
+			top = Timer1_GetTop();
+			break;
+		case TIMER1B:
+			top = Timer1_GetTop();
+			break;
+		case TIMER2B:
+			top = Timer2_GetTop();
+		default:
+			return 0;
+	}
+	
+	return toBaseTwo(top);
+}
+
+//--------------------------------------------------------------------------------
+//							Helper Functions
+//--------------------------------------------------------------------------------
+
+float toBaseTwo(double baseTenNum)
+{
+	return log(baseTenNum + 1)/log(2);
 }
 
 #endif

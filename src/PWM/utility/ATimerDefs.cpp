@@ -88,6 +88,11 @@ void Initialize_16(const int16_t timerOffset)
 	SetFrequency_16(timerOffset, 500);
 }
 
+float GetResolution_16(const int16_t timerOffset)
+{
+	return toBaseTwo(ICR_16(timerOffset));
+}
+
 //--------------------------------------------------------------------------------
 //							8 Bit Timer Functions
 //--------------------------------------------------------------------------------
@@ -169,6 +174,11 @@ void Initialize_8(const int16_t timerOffset)
 	SetFrequency_8(timerOffset, 500);
 }
 
+float GetResolution_8(const int16_t timerOffset)
+{
+	return toBaseTwo(OCRA_8(timerOffset));
+}
+
 //--------------------------------------------------------------------------------
 //							Timer Independent Functions
 //--------------------------------------------------------------------------------
@@ -199,6 +209,36 @@ void pwmWrite(uint8_t pin, uint8_t val)
 				_SFR_MEM8(td.ChannelRegLoc) = (tmp * _SFR_MEM8(td.TimerTopRegLoc)) / 255;
 			}
 		}		
+	}
+}
+
+//takes a 16 bit value instead of an 8 bit value for maximum resolution
+void pwmWriteHR(uint8_t pin, uint16_t val)
+{
+	pinMode(pin, OUTPUT);
+	
+	uint32_t tmp = val;	
+	
+	if (val == 0)
+	digitalWrite(pin, LOW);
+	else if (val == 65535)
+	digitalWrite(pin, HIGH);
+	else
+	{
+		TimerData td = timer_to_pwm_data[digitalPinToTimer(pin)];
+		if(td.ChannelRegLoc) //null checking
+		{
+			if(td.Is16Bit)
+			{
+				sbi(_SFR_MEM8(td.PinConnectRegLoc), td.PinConnectBits);
+				_SFR_MEM16(td.ChannelRegLoc) = (tmp * _SFR_MEM16(td.TimerTopRegLoc)) / 65535;
+			}
+			else
+			{
+				sbi(_SFR_MEM8(td.PinConnectRegLoc), td.PinConnectBits);
+				_SFR_MEM8(td.ChannelRegLoc) = (tmp * _SFR_MEM8(td.TimerTopRegLoc)) / 65535;
+			}
+		}
 	}
 }
 
@@ -256,4 +296,33 @@ bool SetPinFrequencySafe(int8_t pin, uint32_t frequency)
 	else
 	return false;
 }
+
+float GetPinResolution(uint8_t pin)
+{
+	TimerData td = timer_to_pwm_data[digitalPinToTimer(pin)];
+	double baseTenRes = 0;
+	
+	if(td.ChannelRegLoc)
+	{
+		//getting a base 10 resolution
+		td.Is16Bit? (baseTenRes = _SFR_MEM16(td.TimerTopRegLoc)) : (baseTenRes = _SFR_MEM8(td.TimerTopRegLoc));
+		 
+		//change the base and return	
+		return toBaseTwo(baseTenRes);
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+//--------------------------------------------------------------------------------
+//							Helper Functions
+//--------------------------------------------------------------------------------
+
+float toBaseTwo(double baseTenNum)
+{
+	return log(baseTenNum + 1)/log(2);
+}
+
 #endif
