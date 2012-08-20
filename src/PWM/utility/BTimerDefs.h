@@ -101,7 +101,7 @@ static float toBaseTwo(double baseTenNum);
 #define Timer2_GetFrequency()	GetFrequency_8(TIMER2_OFFSET)
 #define Timer2_SetFrequency(x)	SetFrequency_8(TIMER2_OFFSET, x)
 #define Timer2_GetPrescaler()	GetPrescaler_8(TIMER2_OFFSET)
-#define Timer2_SetPrescaler(x)	SetPrescaler_8(TIMER2_OFFSET, x)
+#define Timer2_SetPrescaler(x)	SetPrescalerAlt_8(TIMER2_OFFSET, x)
 #define Timer2_GetTop()			GetTop_8(TIMER2_OFFSET)
 #define Timer2_SetTop(x)		SetTop_8(TIMER2_OFFSET, x)
 #define Timer2_Initialize()		Initialize_8(TIMER2_OFFSET)
