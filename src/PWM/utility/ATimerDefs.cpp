@@ -27,6 +27,15 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define UINT8_MAX 255
 
 //--------------------------------------------------------------------------------
+//							Helper Functions
+//--------------------------------------------------------------------------------
+
+static float toBaseTwo(double baseTenNum)
+{
+	return log(baseTenNum + 1)/log(2);
+}
+
+//--------------------------------------------------------------------------------
 //							16 Bit Timer Functions
 //--------------------------------------------------------------------------------
 
@@ -41,9 +50,9 @@ bool SetFrequency_16(const int16_t timerOffset, uint32_t f)
 	return false;
 	
 	//find the smallest usable multiplier
-	int16_t multiplier = (int16_t)(F_CPU / (2 * f * UINT16_MAX));
+	uint16_t multiplier = (int16_t)(F_CPU / (2 * f * UINT16_MAX));
 	
-	byte iterate = 0;
+	uint8_t iterate = 0;
 	while(multiplier > pscLst[iterate++]);
 	
 	multiplier = pscLst[iterate];		//multiplier holds the clock select value, and iterate holds the corresponding CS flag
@@ -97,9 +106,9 @@ float GetResolution_16(const int16_t timerOffset)
 //							8 Bit Timer Functions
 //--------------------------------------------------------------------------------
 
-uint16_t GetFrequency_8(const int16_t timerOffset)
+uint32_t GetFrequency_8(const int16_t timerOffset)
 {
-	return (int16_t)(F_CPU/((uint32_t)2 * GetTop_8(timerOffset) * GetPrescaler_8(timerOffset)));
+	return (uint32_t)(F_CPU/((uint32_t)2 * GetTop_8(timerOffset) * GetPrescaler_8(timerOffset)));
 }
 
 bool SetFrequency_8(const int16_t timerOffset, uint32_t f)
@@ -110,20 +119,24 @@ bool SetFrequency_8(const int16_t timerOffset, uint32_t f)
 	//find the smallest usable multiplier
 	uint16_t multiplier = (F_CPU / (2 * (uint32_t)f * UINT8_MAX));
 	
-	byte iterate = 0;
+	uint8_t iterate = 0;
+	uint16_t timerTop; 
 	
-	if(TIMER2_OFFSET != timerOffset)
+	do
 	{
-		while(multiplier > pscLst[++iterate]);
-		multiplier = pscLst[iterate];
-	}
-	else
-	{
-		while(multiplier > pscLst_alt[++iterate]);
-		multiplier = pscLst_alt[iterate];
-	}
-	//getting the timer top using the new multiplier
-	uint16_t timerTop = (F_CPU/(2* f * (uint32_t)multiplier));
+		if(TIMER2_OFFSET != timerOffset)
+		{
+			while(multiplier > pscLst[++iterate]);
+			multiplier = pscLst[iterate];
+		}
+		else
+		{
+			while(multiplier > pscLst_alt[++iterate]);
+			multiplier = pscLst_alt[iterate];
+		}
+		//getting the timer top using the new multiplier
+		timerTop = (F_CPU/(2* f * (uint32_t)multiplier));
+	} while (timerTop > UINT8_MAX);
 	
 	SetTop_8(timerOffset, timerTop);
 	
@@ -170,6 +183,14 @@ void Initialize_8(const int16_t timerOffset)
 	
 	TCCRA_8(timerOffset) = (TCCRA_8(timerOffset) & B11111100) | (wgm & 3);
 	TCCRB_8(timerOffset) = (TCCRB_8(timerOffset) & B11110111) | ((wgm & 12) << 1);
+	
+	//disable timer0's interrupt when initialization is called, otherwise handler will eat
+	//up processor cycles when PWM on timer0 is set to high frequencies. This will effectively disable
+	//Arduino's time keeping functions, which the user should be aware of before initializing timer0
+	if(timerOffset == 0)
+	{
+		TIMSK0 &= B11111110;
+	}
 	
 	SetFrequency_8(timerOffset, 500);
 }
@@ -315,14 +336,4 @@ float GetPinResolution(uint8_t pin)
 		return 0;
 	}
 }
-
-//--------------------------------------------------------------------------------
-//							Helper Functions
-//--------------------------------------------------------------------------------
-
-float toBaseTwo(double baseTenNum)
-{
-	return log(baseTenNum + 1)/log(2);
-}
-
 #endif

@@ -49,7 +49,7 @@ extern void		Initialize_16(const int16_t timerOffset);
 extern float	GetResolution_16(const int16_t timerOffset);
 
 // 8 bit timers
-extern uint16_t	GetFrequency_8(const int16_t timerOffset);
+extern uint32_t	GetFrequency_8(const int16_t timerOffset);
 extern bool		SetFrequency_8(const int16_t timerOffset, uint32_t f);
 extern uint16_t GetPrescaler_8(const int16_t timerOffset);
 extern void		SetPrescaler_8(const int16_t timerOffset, prescaler psc);
@@ -74,7 +74,7 @@ extern void		Initialize_16();
 extern float	GetResolution_16();
 
 // 8 bit timers
-extern uint16_t	GetFrequency_8(const int16_t timerOffset);
+extern uint32_t	GetFrequency_8(const int16_t timerOffset);
 extern bool		SetFrequency_8(const int16_t timerOffset, uint32_t f);
 extern uint16_t GetPrescaler_8(const int16_t timerOffset);
 extern void		SetPrescaler_8(const int16_t timerOffset, prescaler psc);

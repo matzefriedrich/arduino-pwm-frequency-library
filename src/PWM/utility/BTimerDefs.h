@@ -53,8 +53,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define TCCRB_8(tmr_offset)		_SFR_MEM8(0x45 + tmr_offset)
 #define OCRA_8(tmr_offset)		_SFR_MEM8(0x47 + tmr_offset)
 
-static const int16_t pscLst[] = { 0, 1, 8, 64, 256, 1024};
-static const int16_t pscLst_alt[] = {0, 1, 8, 32, 64, 128, 256, 1024};
+static const uint16_t pscLst[] = { 0, 1, 8, 64, 256, 1024};
+static const uint16_t pscLst_alt[] = {0, 1, 8, 32, 64, 128, 256, 1024};
 
 enum prescaler
 {
@@ -76,8 +76,6 @@ enum prescaler_alt
 	psalt_256	=	6,
 	psalt_1024	=	7
 };
-
-static float toBaseTwo(double baseTenNum);
 
 //macros for each timer 'object'
 #define Timer0_GetFrequency()	GetFrequency_8(TIMER0_OFFSET)
